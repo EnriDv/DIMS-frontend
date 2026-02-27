@@ -1,0 +1,53 @@
+---
+interface Props {
+  currentPath: string
+  mobile?: boolean
+}
+
+const { currentPath, mobile = false } = Astro.props
+
+const navItems = [
+  { name: 'Inicio', href: '/' },
+  { name: 'Investigaciones', href: '/investigaciones' },
+  { name: 'Eventos', href: '/eventos' },
+  { name: 'Miembros', href: '/miembros' },
+  { name: 'Proyectos', href: '/proyectos' },
+]
+
+const isActive = (href: string) => {
+  if (href === '/') return currentPath === '/'
+  return currentPath.startsWith(href)
+}
+---
+
+<nav class={mobile ? 'py-6' : 'hidden md:block'}>
+  <ul class={mobile ? 'space-y-4' : 'flex items-center gap-2'}>
+    {navItems.map((item) => (
+      <li>
+        <a
+          href={item.href}
+          class={`
+            relative px-4 py-2 text-sm font-medium transition-all duration-300 rounded-lg group
+            ${mobile ? 'block text-lg' : 'inline-block'}
+            ${isActive(item.href)
+              ? 'text-cyan-400' 
+              : 'text-slate-400 hover:text-white hover:bg-white/5'
+            }
+          `}
+        >
+          {item.name}
+          
+          {/* Indicador de estado activo (Glow Line) */}
+          {isActive(item.href) && (
+            <span class="absolute bottom-0 left-4 right-4 h-0.5 bg-cyan-400 shadow-[0_0_12px_rgba(34,211,238,0.8)]" />
+          )}
+          
+          {/* Efecto Hover para no-activos */}
+          {!isActive(item.href) && (
+            <span class="absolute bottom-0 left-1/2 w-0 h-0.5 bg-indigo-500 transition-all duration-300 group-hover:w-1/2 group-hover:left-1/4" />
+          )}
+        </a>
+      </li>
+    ))}
+  </ul>
+</nav>
