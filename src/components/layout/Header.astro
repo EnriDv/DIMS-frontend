@@ -1,24 +1,32 @@
 ---
-// src/components/layout/Header.astro
 import Navigation from './Navigation.astro'
 
 const currentPath = Astro.url.pathname
 ---
 
-<header class="fixed w-full top-0 z-50 border-b border-white/5 bg-slate-950/80 backdrop-blur-md">
+<header class="fixed top-0 z-50 w-full border-b border-white/5 bg-slate-950/80 backdrop-blur-md">
   <div class="container-custom">
-    <div class="flex items-center justify-between h-20">
-      
-      <a href="/" class="flex items-center gap-3 group">
+    <div class="flex h-20 items-center justify-between">
+      <a href="/" class="group flex items-center gap-3">
         <div class="relative">
-          <div class="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-lg blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
-          <div class="relative w-10 h-10 bg-slate-900 rounded-lg flex items-center justify-center border border-white/20">
-            <span class="text-transparent bg-clip-text bg-gradient-to-br from-white to-slate-400 font-black text-xl">D</span>
+          <div
+            class="absolute -inset-1 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 opacity-25 blur transition duration-1000 group-hover:opacity-75"
+          >
+          </div>
+          <div
+            class="relative flex h-10 w-10 items-center justify-center rounded-lg border border-white/20 bg-slate-900"
+          >
+            <span
+              class="bg-gradient-to-br from-white to-slate-400 bg-clip-text text-xl font-black text-transparent"
+              >D</span
+            >
           </div>
         </div>
         <div class="flex flex-col">
           <span class="text-xl font-bold tracking-tighter text-white">DIMS</span>
-          <span class="text-[10px] font-mono text-cyan-400 tracking-[0.2em] leading-none uppercase">Engineering Hub</span>
+          <span class="font-mono text-[10px] leading-none tracking-[0.2em] text-cyan-400 uppercase"
+            >Engineering Hub</span
+          >
         </div>
       </a>
 
@@ -27,27 +35,39 @@ const currentPath = Astro.url.pathname
       </div>
 
       <div class="flex items-center gap-4">
-        <a href="/postulaciones" class="hidden sm:block text-sm font-medium text-slate-300 hover:text-cyan-400 transition-colors">
-          Admisiones 2026
+        <a
+          href="/postulaciones"
+          class="hidden rounded border border-cyan-500/30 bg-cyan-500/5 px-4 py-2 font-mono text-xs text-cyan-400 transition-all hover:bg-cyan-500 hover:text-slate-950 lg:block"
+        >
+          ADMISIONES_2026
         </a>
-        <button 
+
+        <button
           id="mobile-menu-button"
-          class="md:hidden p-2 text-slate-400 hover:text-white transition-colors"
+          class="p-2 text-slate-400 hover:text-white md:hidden"
           aria-label="Menu"
         >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path class="line-1" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16" />
-            <path class="line-2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12h16" />
-            <path class="line-3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 18h16" />
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"></path>
           </svg>
         </button>
       </div>
     </div>
   </div>
 
-  <div id="mobile-menu" class="hidden md:hidden bg-slate-950 border-t border-white/5 h-screen">
-    <div class="p-4">
-       <Navigation currentPath={currentPath} mobile={true} />
+  <div id="mobile-menu" class="hidden h-screen border-t border-white/5 bg-slate-950 md:hidden">
+    <div class="p-6">
+      <Navigation currentPath={currentPath} mobile={true} />
+      <a
+        href="/postulaciones"
+        class="mt-4 block border border-cyan-500 p-4 text-center font-mono text-sm text-cyan-400"
+      >
+        [ INICIAR_ADMISION_2026 ]
+      </a>
     </div>
   </div>
 </header>
@@ -55,9 +75,8 @@ const currentPath = Astro.url.pathname
 <script>
   const button = document.getElementById('mobile-menu-button')
   const menu = document.getElementById('mobile-menu')
-  
   button?.addEventListener('click', () => {
     menu?.classList.toggle('hidden')
-    document.body.classList.toggle('overflow-hidden') // Evita scroll al estar abierto
+    document.body.classList.toggle('overflow-hidden')
   })
 </script>
