@@ -1,0 +1,100 @@
+---
+import MainLayout from '@/layouts/MainLayout.astro'
+import { carreras, noticias } from '@/lib/mockData'
+
+// Función necesaria para SSG (Generación Estática)
+export async function getStaticPaths() {
+  return noticias.map((noticia) => ({
+    params: { id: noticia.id.toString() },
+    props: { noticia },
+  }))
+}
+
+const { noticia } = Astro.props
+const carreraRelacionada = carreras.find((c) => c.slug === noticia.carreraSlug)
+---
+
+<MainLayout title={`${noticia.titulo} | News Feed`}>
+  <div class="relative min-h-screen overflow-hidden bg-slate-950 pt-32 pb-20">
+    <div class="absolute top-0 right-0 -z-10 h-1/2 w-1/2 bg-indigo-600/10 blur-[120px]"></div>
+
+    <article class="container-custom relative">
+      <header class="mb-12">
+        <div
+          class="mb-6 flex items-center gap-4 font-mono text-xs tracking-widest text-cyan-500 uppercase"
+        >
+          <span class="border border-cyan-500/30 bg-cyan-500/10 px-2 py-1">Log_Type: News</span>
+          <span>//</span>
+          <span>{noticia.fecha}</span>
+        </div>
+
+        <h1 class="mb-8 text-4xl leading-tight font-black text-white lg:text-6xl">
+          {noticia.titulo}
+        </h1>
+
+        {
+          carreraRelacionada && (
+            <div class="glass-card inline-flex items-center gap-3 border-white/10 px-4 py-2">
+              <span class="text-2xl">{carreraRelacionada.icono}</span>
+              <span class="font-mono text-xs text-slate-400">
+                Context: {carreraRelacionada.nombre}
+              </span>
+            </div>
+          )
+        }
+      </header>
+
+      <div class="grid gap-12 lg:grid-cols-3">
+        <div class="space-y-8 lg:col-span-2">
+          <div
+            class="group relative aspect-video overflow-hidden rounded-2xl border border-white/10"
+          >
+            <img
+              src={noticia.imagen}
+              alt={noticia.titulo}
+              class="h-full w-full object-cover opacity-80 transition-opacity group-hover:opacity-100"
+            />
+            <div class="absolute inset-0 shadow-[inset_0_0_40px_rgba(0,0,0,0.5)]"></div>
+          </div>
+
+          <div
+            class="prose prose-invert prose-cyan max-w-none text-lg leading-relaxed text-slate-400"
+          >
+            {noticia.contenido}
+          </div>
+        </div>
+
+        <aside class="space-y-6">
+          <div class="glass-card space-y-4 border-white/5 p-6">
+            <h3
+              class="border-b border-white/5 pb-2 font-mono text-xs font-bold tracking-widest text-white uppercase"
+            >
+              Entry_Metadata
+            </h3>
+            <div class="space-y-2 font-mono text-[11px]">
+              <p class="flex justify-between">
+                <span class="text-slate-500">Author:</span>
+                <span class="text-indigo-400">Scientia_Hub</span>
+              </p>
+              <p class="flex justify-between">
+                <span class="text-slate-500">Status:</span>
+                <span class="text-green-500">Published</span>
+              </p>
+              <p class="flex justify-between">
+                <span class="text-slate-500">Visibility:</span>
+                <span class="text-cyan-400">Public</span>
+              </p>
+            </div>
+          </div>
+
+          <a
+            href="/noticias"
+            class="flex items-center justify-center gap-2 rounded-lg border border-white/10 py-3 font-mono text-xs text-slate-400 transition-all hover:bg-white/5 hover:text-white"
+          >
+            <span>[ EXIT_TO_FEED ]</span>
+          </a>
+        </aside>
+      </div>
+    </article>
+  </div>
+</MainLayout>
