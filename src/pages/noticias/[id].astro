@@ -1,100 +1,76 @@
 ---
+// frontend/src/pages/noticias/[id].astro
 import MainLayout from '@/layouts/MainLayout.astro'
-import { carreras, noticias } from '@/lib/mockData'
+import { noticiasService } from '@/lib/api/noticias.service'
 
-// Función necesaria para SSG (Generación Estática)
-export async function getStaticPaths() {
-  return noticias.map((noticia) => ({
-    params: { id: noticia.id.toString() },
-    props: { noticia },
-  }))
+const { id } = Astro.params
+const noticiaId = Number(id)
+
+let noticia = null
+
+if (!Number.isNaN(noticiaId)) {
+  try {
+    noticia = await noticiasService.getById(noticiaId)
+  } catch {
+    Astro.response.status = 404
+  }
+} else {
+  Astro.response.status = 404
 }
 
-const { noticia } = Astro.props
-const carreraRelacionada = carreras.find((c) => c.slug === noticia.carreraSlug)
+const pageTitle = noticia ? `${noticia.titulo} | Noticias UCB` : 'Noticia no encontrada | UCB'
 ---
 
-<MainLayout title={`${noticia.titulo} | News Feed`}>
-  <div class="relative min-h-screen overflow-hidden bg-slate-950 pt-32 pb-20">
-    <div class="absolute top-0 right-0 -z-10 h-1/2 w-1/2 bg-indigo-600/10 blur-[120px]"></div>
-
-    <article class="container-custom relative">
-      <header class="mb-12">
-        <div
-          class="mb-6 flex items-center gap-4 font-mono text-xs tracking-widest text-cyan-500 uppercase"
-        >
-          <span class="border border-cyan-500/30 bg-cyan-500/10 px-2 py-1">Log_Type: News</span>
-          <span>//</span>
-          <span>{noticia.fecha}</span>
-        </div>
-
-        <h1 class="mb-8 text-4xl leading-tight font-black text-white lg:text-6xl">
-          {noticia.titulo}
-        </h1>
-
-        {
-          carreraRelacionada && (
-            <div class="glass-card inline-flex items-center gap-3 border-white/10 px-4 py-2">
-              <span class="text-2xl">{carreraRelacionada.icono}</span>
-              <span class="font-mono text-xs text-slate-400">
-                Context: {carreraRelacionada.nombre}
-              </span>
-            </div>
-          )
-        }
-      </header>
-
-      <div class="grid gap-12 lg:grid-cols-3">
-        <div class="space-y-8 lg:col-span-2">
-          <div
-            class="group relative aspect-video overflow-hidden rounded-2xl border border-white/10"
-          >
-            <img
-              src={noticia.imagen}
-              alt={noticia.titulo}
-              class="h-full w-full object-cover opacity-80 transition-opacity group-hover:opacity-100"
-            />
-            <div class="absolute inset-0 shadow-[inset_0_0_40px_rgba(0,0,0,0.5)]"></div>
-          </div>
-
-          <div
-            class="prose prose-invert prose-cyan max-w-none text-lg leading-relaxed text-slate-400"
-          >
-            {noticia.contenido}
-          </div>
-        </div>
-
-        <aside class="space-y-6">
-          <div class="glass-card space-y-4 border-white/5 p-6">
-            <h3
-              class="border-b border-white/5 pb-2 font-mono text-xs font-bold tracking-widest text-white uppercase"
-            >
-              Entry_Metadata
-            </h3>
-            <div class="space-y-2 font-mono text-[11px]">
-              <p class="flex justify-between">
-                <span class="text-slate-500">Author:</span>
-                <span class="text-indigo-400">Scientia_Hub</span>
-              </p>
-              <p class="flex justify-between">
-                <span class="text-slate-500">Status:</span>
-                <span class="text-green-500">Published</span>
-              </p>
-              <p class="flex justify-between">
-                <span class="text-slate-500">Visibility:</span>
-                <span class="text-cyan-400">Public</span>
-              </p>
-            </div>
-          </div>
-
-          <a
-            href="/noticias"
-            class="flex items-center justify-center gap-2 rounded-lg border border-white/10 py-3 font-mono text-xs text-slate-400 transition-all hover:bg-white/5 hover:text-white"
-          >
-            <span>[ EXIT_TO_FEED ]</span>
-          </a>
-        </aside>
+<MainLayout title={pageTitle}>
+  {!noticia ? (
+    <section class="relative min-h-screen bg-white pt-32 pb-20">
+      <div class="container-custom max-w-3xl text-center">
+        <h1 class="text-3xl font-black text-slate-900">Noticia no encontrada</h1>
+        <p class="mt-4 text-slate-600">Esta noticia no existe o fue eliminada.</p>
+        <a href="/noticias" class="mt-8 inline-flex rounded-xl bg-indigo-600 px-5 py-3 text-sm font-bold text-white hover:bg-indigo-700">
+          Volver a noticias
+        </a>
       </div>
-    </article>
-  </div>
+    </section>
+  ) : (
+    <div class="relative min-h-screen bg-white pt-32 pb-20">
+      <article class="container-custom max-w-4xl">
+        <a href="/noticias" class="inline-flex items-center gap-2 text-indigo-600 font-semibold hover:text-indigo-800 mb-8 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          Volver al feed
+        </a>
+
+        <header class="mb-10">
+          <div class="mb-6 flex flex-wrap items-center gap-4 font-mono text-xs font-bold text-slate-500 uppercase">
+            <span class="rounded-md bg-indigo-50 px-3 py-1 text-indigo-700 tracking-widest border border-indigo-100">Comunicado</span>
+            <span>{new Date(noticia.fecha).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+            {noticia.carreraNombre && (
+              <>
+                <span>•</span>
+                <span class="text-cyan-600">{noticia.carreraNombre}</span>
+              </>
+            )}
+          </div>
+
+          <h1 class="mb-8 text-4xl md:text-5xl leading-tight font-black text-slate-900 tracking-tight">
+            {noticia.titulo}
+          </h1>
+        </header>
+
+        {noticia.imagenUrl && (
+          <div class="mb-12 aspect-video w-full overflow-hidden rounded-2xl shadow-lg border border-slate-200">
+            <img
+              src={noticia.imagenUrl}
+              alt={noticia.titulo}
+              class="h-full w-full object-cover"
+            />
+          </div>
+        )}
+
+        <div class="prose prose-lg prose-slate prose-a:text-indigo-600 hover:prose-a:text-indigo-800 max-w-none">
+          <Fragment set:html={noticia.contenido} />
+        </div>
+      </article>
+    </div>
+  )}
 </MainLayout>

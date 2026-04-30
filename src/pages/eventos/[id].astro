@@ -1,0 +1,107 @@
+---
+// src/pages/eventos/[id].astro
+import MainLayout from '@/layouts/MainLayout.astro'
+import { eventosService } from '@/lib/api/eventos.service'
+import BotonSuscripcion from '@/components/eventos/BotonSuscripcion'
+
+const { id } = Astro.params
+const eventoId = Number(id)
+
+let evento = null
+
+if (!Number.isNaN(eventoId)) {
+  try {
+    evento = await eventosService.getById(eventoId)
+  } catch {
+    Astro.response.status = 404
+  }
+} else {
+  Astro.response.status = 404
+}
+
+const eventDate = evento?.fechaEvento || evento?.fecha || ''
+const dateObj = eventDate ? new Date(eventDate) : null
+const day = dateObj ? dateObj.getDate().toString().padStart(2, '0') : ''
+const month = dateObj ? dateObj.toLocaleString('es-ES', { month: 'long' }).toUpperCase() : ''
+const time = dateObj ? dateObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : ''
+const pageTitle = evento ? `${evento.titulo} | Evento UCB` : 'Evento no encontrado | UCB'
+---
+
+<MainLayout title={pageTitle}>
+  {!evento ? (
+    <section class="relative min-h-screen bg-slate-50 pt-32 pb-20">
+      <div class="container-custom max-w-3xl text-center">
+        <h1 class="text-3xl font-black text-slate-900">Evento no encontrado</h1>
+        <p class="mt-4 text-slate-600">Este evento no existe o fue eliminado.</p>
+        <a href="/eventos" class="mt-8 inline-flex rounded-xl bg-indigo-600 px-5 py-3 text-sm font-bold text-white hover:bg-indigo-700">
+          Volver a eventos
+        </a>
+      </div>
+    </section>
+  ) : (
+    <div class="relative min-h-screen bg-slate-50 pt-32 pb-20">
+      <div class="container-custom">
+        <div class="mx-auto max-w-4xl">
+          <a href="/eventos" class="inline-flex items-center gap-2 text-indigo-600 font-semibold hover:text-indigo-800 mb-8 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            Volver al calendario
+          </a>
+
+          <div class="mb-10">
+            <span class="inline-block rounded-md bg-cyan-100 text-cyan-800 px-3 py-1 font-mono text-xs font-bold tracking-wider uppercase mb-4">
+              {evento.tipo}
+            </span>
+            <h1 class="text-4xl md:text-5xl leading-tight font-black tracking-tight text-slate-900">
+              {evento.titulo}
+            </h1>
+          </div>
+
+          <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200 grid md:grid-cols-3">
+            {/* Panel de Fecha y Hora */}
+            <div class="flex flex-col justify-center items-center bg-indigo-600 p-10 text-center border-b md:border-b-0 md:border-r border-indigo-700">
+              <span class="mb-2 font-mono text-sm font-semibold text-indigo-200 uppercase tracking-widest">Día del Evento</span>
+              <span class="text-7xl font-black tracking-tighter text-white drop-shadow-md">{day}</span>
+              <span class="text-2xl font-bold tracking-widest text-white uppercase mt-1">{month}</span>
+              <div class="mt-6 inline-flex items-center gap-2 bg-indigo-700/50 rounded-full px-5 py-2">
+                <svg class="w-5 h-5 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span class="font-mono font-bold text-white text-lg">{time} HRS</span>
+              </div>
+            </div>
+
+            {/* Panel de Información */}
+            <div class="p-8 md:p-10 md:col-span-2 flex flex-col justify-between">
+              <div class="space-y-6">
+                <div>
+                  <h2 class="text-sm font-bold tracking-widest text-slate-400 uppercase mb-3">Descripción</h2>
+                  <p class="text-lg leading-relaxed text-slate-700">
+                    {evento.descripcion || 'Sin descripción disponible.'}
+                  </p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-6 border-t border-slate-100 pt-6">
+                  <div>
+                    <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Ubicación</span>
+                    <span class="text-base font-bold text-slate-900 flex items-center gap-2">
+                      <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                      {evento.lugar}
+                    </span>
+                  </div>
+                  <div>
+                    <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Cupos Disponibles</span>
+                    <span class="text-base font-bold text-slate-900">
+                      {evento.capacidad - (evento.inscritos || 0)} de {evento.capacidad}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-8 pt-6 border-t border-slate-100">
+                <BotonSuscripcion eventoId={evento.id} client:only="react" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
+</MainLayout>

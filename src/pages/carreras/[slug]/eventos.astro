@@ -1,0 +1,90 @@
+---
+// src/pages/carreras/[slug]/eventos.astro
+import MainLayout from '@/layouts/MainLayout.astro'
+
+const { slug } = Astro.params
+const carrera = { slug, nombre: 'Carrera' }  // Placeholder
+
+const eventosRelacionados = [
+  {
+    id: 1,
+    tipo: 'CONFERENCIA',
+    titulo: `Simposio Nacional de ${carrera.nombre.split(' ').pop()}`,
+    fecha: '2026-06-12',
+    status: 'PRÓXIMO',
+  },
+  {
+    id: 2,
+    tipo: 'TALLER',
+    titulo: 'Work-Lab: Nuevas Tecnologías Aplicadas',
+    fecha: '2026-07-05',
+    status: 'PROGRAMADO',
+  },
+]
+---
+
+<MainLayout title={`Eventos | ${carrera.nombre}`}>
+  <section class="min-h-screen bg-slate-950 pt-32 pb-20">
+    <div class="container-custom">
+      <div class="mb-12">
+        <a
+          href={`/carreras/${carrera.slug}`}
+          class="font-mono text-xs text-slate-500 transition-colors hover:text-cyan-400"
+        >
+          [ RETURN_TO_OVERVIEW ]
+        </a>
+        <h1 class="mt-4 text-4xl font-black tracking-tighter text-white uppercase">
+          Calendario_Actividades <span class="text-cyan-500">//</span>
+          {carrera.nombre}
+        </h1>
+      </div>
+
+      <div
+        class="relative space-y-8 before:absolute before:inset-0 before:ml-5 before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-white/10 before:to-transparent md:before:mx-auto"
+      >
+        {
+          eventosRelacionados.map((evento) => (
+            <div class="group relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse">
+              <div class="z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/20 bg-slate-950 text-white md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
+                <span class="h-2 w-2 rounded-full bg-cyan-500 transition-transform group-hover:scale-150" />
+              </div>
+
+              <div class="glass-card w-[calc(100%-4rem)] border-white/5 p-6 transition-all group-hover:border-cyan-500/30 md:w-[calc(50%-2.5rem)]">
+                <div class="mb-4 flex items-center justify-between">
+                  <span class="rounded border border-white/10 px-2 py-0.5 font-mono text-[10px] text-slate-500 uppercase">
+                    {evento.tipo}
+                  </span>
+                  <span class="font-mono text-[10px] tracking-widest text-cyan-500">
+                    {evento.fecha}
+                  </span>
+                </div>
+                <h3 class="mb-4 text-xl leading-tight font-bold text-white uppercase transition-colors group-hover:text-cyan-400">
+                  {evento.titulo}
+                </h3>
+                <div class="flex items-center justify-between">
+                  <span
+                    class={`rounded px-2 py-0.5 font-mono text-[9px] ${evento.status === 'PRÓXIMO' ? 'bg-cyan-500/20 text-cyan-400' : 'bg-slate-800 text-slate-400'}`}
+                  >
+                    STATUS: {evento.status}
+                  </span>
+                  <a
+                    href={`/eventos/${evento.id}`}
+                    class="font-mono text-xs text-slate-500 transition-colors hover:text-white"
+                  >
+                    DETALLES_
+                  </a>
+                </div>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+
+      <div class="mt-20 rounded-2xl border-2 border-dashed border-white/5 py-12 text-center">
+        <p class="font-mono text-xs tracking-widest text-slate-600 uppercase">
+          Sincronizando con el servidor central de eventos...
+        </p>
+      </div>
+    </div>
+  </section>
+</MainLayout>

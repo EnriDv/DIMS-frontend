@@ -1,13 +1,13 @@
 ---
-// src/pages/carreras/[slug]/malla.astro
+// src/pages/carreras/[slug]/personas.astro
 import MainLayout from '@/layouts/MainLayout.astro'
-import MateriasLista from '@/components/materias/MateriasLista'
+import PersonasLista from '@/components/personas/PersonasLista'
 
 const { slug } = Astro.params
-const { carrera } = Astro.props
+const carrera = { slug, nombre: 'Carrera' }  // Placeholder
 ---
 
-<MainLayout title={`Malla Curricular | ${carrera.nombre}`}>
+<MainLayout title={`Cuerpo Docente | ${carrera.nombre}`}>
   <section class="py-12 bg-slate-50 min-h-screen pt-32">
     <div class="container-custom">
       <a href={`/carreras/${carrera.slug}`} class="inline-flex items-center gap-2 text-indigo-600 font-bold hover:text-indigo-800 mb-8 transition-colors text-sm">
@@ -15,17 +15,13 @@ const { carrera } = Astro.props
         VOLVER_A_SINOPSIS
       </a>
 
-      <div class="mb-12 flex items-end justify-between border-b border-slate-200 pb-8">
-        <div>
-          <h1 class="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight uppercase">MALLA_CURRICULAR</h1>
-          <p class="text-xl font-medium text-indigo-600 font-mono tracking-widest">{carrera.nombre.toUpperCase()}</p>
-        </div>
-        <div class="hidden md:block">
-           <span class="px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-400 font-mono uppercase">Version_Control: v2.0</span>
-        </div>
+      <div class="mb-12">
+        <h1 class="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight uppercase">EQUIPO_DOCENTE</h1>
+        <p class="text-xl font-medium text-indigo-600 font-mono tracking-widest">{carrera.nombre.toUpperCase()}</p>
       </div>
 
-      <MateriasLista client:only="react" />
+      {/* Cargamos la lista (que ya tiene withQueryClient) directamente */}
+      <PersonasLista client:only="react" />
     </div>
   </section>
 

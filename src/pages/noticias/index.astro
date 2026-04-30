@@ -1,86 +1,28 @@
 ---
 // src/pages/noticias/index.astro
 import MainLayout from '@/layouts/MainLayout.astro'
-import { carreras, noticias } from '@/lib/mockData'
-
-const allNoticias = noticias.sort(
-  (a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime()
-)
+import CarreraSelector from '@/components/carreras/CarreraSelector'
+import NoticiasLista from '@/components/noticias/NoticiasLista'
 ---
 
-<MainLayout title="Activity_Log | DIMS Hub">
-  <section class="relative min-h-screen overflow-hidden bg-slate-950 pt-32 pb-20">
-    <div
-      class="pointer-events-none absolute inset-0 opacity-10"
-      style="background-image: radial-gradient(#334155 1px, transparent 1px); background-size: 30px 30px;"
-    >
-    </div>
-
-    <div class="container-custom relative z-10">
-      <header class="mb-16">
-        <div class="mb-4 flex items-center gap-2 font-mono text-xs tracking-[0.3em] text-cyan-500">
-          <span class="h-px w-8 bg-cyan-500"></span>
-          SYSTEM_ACTIVITY_FEED
-        </div>
-        <h1 class="text-5xl font-black tracking-tighter text-white lg:text-7xl">
-          LOGS DE <span
-            class="font-italic bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent"
-            >PRODUCCIÓN</span
-          >
-        </h1>
-      </header>
-
-      <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-        {
-          allNoticias.map((noticia) => {
-            const carrera = carreras.find((c) => c.slug === noticia.carreraSlug)
-            return (
-              <article class="glass-card group flex h-full flex-col border-white/5 transition-all hover:border-cyan-500/30">
-                <div class="relative h-48 overflow-hidden">
-                  <img
-                    src={noticia.imagen}
-                    alt={noticia.titulo}
-                    class="h-full w-full object-cover opacity-60 grayscale transition-all duration-700 group-hover:opacity-100 group-hover:grayscale-0"
-                  />
-                  <div class="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent" />
-                  <div class="absolute top-4 left-4">
-                    <span class="rounded border border-white/10 bg-slate-900/80 px-2 py-1 font-mono text-[9px] text-cyan-400">
-                      ID: #{noticia.id}
-                    </span>
-                  </div>
-                </div>
-
-                <div class="flex flex-1 flex-col p-6">
-                  <div class="mb-4 flex items-center justify-between">
-                    <time class="font-mono text-[10px] text-slate-500">
-                      {noticia.fecha.replace(/-/g, '.')}
-                    </time>
-                    {carrera && (
-                      <span class="font-mono text-[10px] tracking-widest text-indigo-400 uppercase">
-                        {carrera.icono} {carrera.slug}
-                      </span>
-                    )}
-                  </div>
-
-                  <h2 class="mb-4 line-clamp-2 text-xl font-bold text-white transition-colors group-hover:text-cyan-400">
-                    {noticia.titulo}
-                  </h2>
-
-                  <div class="mt-auto flex items-center justify-between border-t border-white/5 pt-4">
-                    <a
-                      href={`/noticias/${noticia.id}`}
-                      class="font-mono text-xs text-slate-400 transition-colors hover:text-white"
-                    >
-                      READ_ENTRY_
-                    </a>
-                    <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-green-500" />
-                  </div>
-                </div>
-              </article>
-            )
-          })
-        }
+<MainLayout title="Noticias - Ingenierías UCB">
+  <section class="py-16 bg-slate-50 min-h-screen pt-32">
+    <div class="container-custom">
+      <div class="mb-12">
+        <h1 class="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">Portal de Noticias</h1>
+        <p class="text-lg text-slate-600 max-w-2xl leading-relaxed">
+          Entérate de los últimos avances, eventos, proyectos y logros de nuestra comunidad académica y científica.
+        </p>
       </div>
+
+      {/* Selector de carrera - Cargado directamente */}
+      <div class="mb-12">
+        <h2 class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4">Filtrar por unidad académica:</h2>
+        <CarreraSelector client:only="react" />
+      </div>
+
+      {/* Lista de noticias - El componente ya se auto-envuelve con withQueryClient */}
+      <NoticiasLista client:only="react" />
     </div>
   </section>
 </MainLayout>

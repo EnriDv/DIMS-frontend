@@ -1,0 +1,84 @@
+---
+// frontend/src/pages/eventos/index.astro
+import MainLayout from '@/layouts/MainLayout.astro'
+import { eventosService } from '@/lib/api/eventos.service'
+import type { Evento } from '@/types'
+
+let eventos: Evento[] = []
+try {
+  eventos = await eventosService.getAll({ proximos: true })
+} catch (e) {
+  console.error("Error cargando eventos:", e)
+}
+---
+
+<MainLayout title="Calendario de Eventos | UCB">
+  <section class="min-h-screen bg-slate-50 pt-32 pb-20">
+    <div class="container-custom max-w-5xl">
+      <header class="mb-16 text-center">
+        <span class="mb-4 inline-block rounded-full bg-cyan-100 px-4 py-1.5 font-mono text-xs font-bold tracking-[0.2em] text-cyan-800 uppercase border border-cyan-200">
+          Calendario Académico
+        </span>
+        <h1 class="text-4xl md:text-6xl font-black tracking-tighter text-slate-900 mt-4">
+          PRÓXIMOS <span class="text-indigo-600">EVENTOS</span>
+        </h1>
+        <p class="mt-6 text-lg text-slate-600 max-w-2xl mx-auto">
+          Participa en conferencias, talleres y competencias organizadas por las facultades de ingeniería.
+        </p>
+      </header>
+
+      <div class="grid gap-6">
+        {eventos.length > 0 ? eventos.map((evento) => {
+          const eventDate = evento.fechaEvento || evento.fecha
+          const eventLocation = evento.lugar || evento.ubicacion
+          const eventDescription = evento.descripcion || evento.descripcionCorta
+          const date = new Date(eventDate)
+          const d = date.getDate().toString().padStart(2, '0')
+          const m = date.toLocaleString('es-ES', { month: 'short' }).toUpperCase()
+
+          return (
+            <a
+              href={`/eventos/${evento.id}`}
+              class="group flex flex-col md:flex-row bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl hover:border-indigo-300 transition-all duration-300"
+            >
+              <div class="flex md:w-40 shrink-0 flex-col items-center justify-center bg-slate-100 p-6 border-b md:border-b-0 md:border-r border-slate-200 group-hover:bg-indigo-50 transition-colors">
+                <span class="mb-1 text-sm font-bold text-slate-500 uppercase tracking-widest">{m}</span>
+                <span class="text-5xl font-black text-indigo-600">{d}</span>
+              </div>
+
+              <div class="flex-1 p-6 md:p-8 flex flex-col justify-center">
+                <div class="mb-3 flex flex-wrap items-center gap-3">
+                  <span class="rounded-md bg-indigo-100 text-indigo-800 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider">
+                    {evento.tipo}
+                  </span>
+                  {eventLocation && (
+                    <span class="font-mono text-xs font-semibold text-slate-500 flex items-center gap-1">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                      {eventLocation.split('-')[0]}
+                    </span>
+                  )}
+                </div>
+                <h2 class="text-2xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors mb-2">
+                  {evento.titulo}
+                </h2>
+                {eventDescription && (
+                  <p class="text-slate-600 line-clamp-2">{eventDescription}</p>
+                )}
+              </div>
+
+              <div class="hidden md:flex shrink-0 items-center justify-center p-8 bg-slate-50 group-hover:bg-indigo-600 transition-colors">
+                <svg class="w-8 h-8 text-slate-400 group-hover:text-white transition-all transform group-hover:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                </svg>
+              </div>
+            </a>
+          )
+        }) : (
+          <div class="text-center p-12 bg-white rounded-2xl border border-slate-200">
+            <p class="text-slate-500 text-lg">No hay eventos programados próximamente.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  </section>
+</MainLayout>

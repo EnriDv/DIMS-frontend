@@ -1,0 +1,23 @@
+---
+import MainLayout from '@/layouts/MainLayout.astro'
+import NoticiasLista from '@/components/noticias/NoticiasLista'
+
+const { slug } = Astro.params
+const carrera = { slug, nombre: 'Carrera' }  // Placeholder
+---
+
+<MainLayout title={`Noticias | ${carrera.nombre}`}>
+  <section class="py-12 bg-slate-50 min-h-screen pt-32">
+    <div class="container-custom">
+      <h1 class="text-4xl font-black text-slate-900 mb-12">Logs de Actividad: {carrera.nombre}</h1>
+      <NoticiasLista client:only="react" />
+    </div>
+  </section>
+
+  <script>
+    import { setCarreraActiva } from '@/stores/filters'
+    const parts = window.location.pathname.split('/');
+    const slug = parts[parts.indexOf('carreras') + 1];
+    if (slug) setCarreraActiva(slug);
+  </script>
+</MainLayout>

@@ -1,0 +1,25 @@
+---
+import MainLayout from '@/layouts/MainLayout.astro'
+import CarreraSelector from '@/components/carreras/CarreraSelector'
+import MateriasLista from '@/components/materias/MateriasLista'
+---
+
+<MainLayout title="Plan de Estudios | UCB">
+  <section class="py-16 bg-slate-50 min-h-screen pt-32">
+    <div class="container-custom">
+      <div class="mb-12">
+        <h1 class="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">Plan de Estudios</h1>
+        <p class="text-lg text-slate-600 max-w-2xl">
+          Explora la malla curricular de tu carrera, analiza los contenidos y revisa paralelos en tiempo real.
+        </p>
+      </div>
+
+      <div class="mb-12 border-b border-slate-200 pb-8">
+        <h2 class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4">Filtrar por carrera:</h2>
+        <CarreraSelector client:only="react" />
+      </div>
+
+      <MateriasLista client:only="react" />
+    </div>
+  </section>
+</MainLayout>
