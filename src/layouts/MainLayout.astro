@@ -10,6 +10,10 @@ interface Props {
 
 const { title, description } = Astro.props
 ---
+<script>
+  import { fetchCarreras } from '@/stores/carreras';
+  fetchCarreras();
+</script>
 
 <BaseLayout title={title} description={description}>
   <Header />
@@ -18,3 +22,4 @@ const { title, description } = Astro.props
   </main>
   <Footer />
 </BaseLayout>
+

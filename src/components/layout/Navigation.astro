@@ -1,4 +1,5 @@
 ---
+// src/components/layout/Navigation.astro
 interface Props {
   currentPath: string
   mobile?: boolean
@@ -6,18 +7,16 @@ interface Props {
 
 const { currentPath, mobile = false } = Astro.props
 
-// Configuración centralizada de rutas
 const navItems = [
   { name: 'Inicio', href: '/' },
-  { name: 'Carreras', href: '/#carreras' }, // Ancla a la sección de la Home
+  { name: 'Carreras', href: '/#carreras' },
   { name: 'Noticias', href: '/noticias' },
   { name: 'Eventos', href: '/eventos' },
-  { name: 'Investigaciones', href: '/investigaciones' },
 ]
 
 const isActive = (href: string) => {
   if (href === '/') return currentPath === '/'
-  if (href.startsWith('/#')) return false // Las anclas no se marcan como "activas" por URL
+  if (href.startsWith('/#')) return false
   return currentPath.startsWith(href)
 }
 ---
@@ -31,17 +30,13 @@ const isActive = (href: string) => {
             href={item.href}
             class={`group relative rounded-lg px-4 py-2 text-sm font-medium transition-all duration-300 ${mobile ? 'block text-lg' : 'inline-block'} ${
               isActive(item.href)
-                ? 'text-cyan-400'
-                : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                ? 'text-indigo-600 bg-indigo-50'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-indigo-600'
             } `}
           >
             {item.name}
 
-            {isActive(item.href) && (
-              <span class="absolute right-4 bottom-0 left-4 h-0.5 bg-cyan-400 shadow-[0_0_12px_rgba(34,211,238,0.8)]" />
-            )}
-
-            {!isActive(item.href) && (
+            {!isActive(item.href) && !mobile && (
               <span class="absolute bottom-0 left-1/2 h-0.5 w-0 bg-indigo-500 transition-all duration-300 group-hover:left-1/4 group-hover:w-1/2" />
             )}
           </a>
