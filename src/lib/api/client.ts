@@ -1,10 +1,25 @@
 // frontend/src/lib/api/client.ts
 import { $accessToken, $refreshToken, logout, setTokens } from '@/stores/auth'
 
-const API_BASE_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:5231/api'
+const PUBLIC_API_URL = import.meta.env.PUBLIC_API_URL?.trim()
+const INTERNAL_API_URL = (
+  import.meta.env.SSR
+    ? (process.env.INTERNAL_API_URL ?? import.meta.env.INTERNAL_API_URL)
+    : undefined
+)?.trim()
+
+const API_BASE_URL = import.meta.env.SSR ? INTERNAL_API_URL || PUBLIC_API_URL : PUBLIC_API_URL
+
+if (!API_BASE_URL) {
+  throw new Error('Missing API URL. Set PUBLIC_API_URL (and INTERNAL_API_URL for SSR in Docker).')
+}
 
 export class ApiError extends Error {
-  constructor(public status: number, message: string, public data?: any) {
+  constructor(
+    public status: number,
+    message: string,
+    public data?: any
+  ) {
     super(message)
     this.name = 'ApiError'
   }
@@ -30,7 +45,7 @@ async function refreshAccessToken(): Promise<boolean> {
       const response = await fetch(`${API_BASE_URL}/Auth/refresh`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refreshToken })
+        body: JSON.stringify({ refreshToken }),
       })
 
       if (!response.ok) {
@@ -57,14 +72,14 @@ async function handleResponse<T>(response: Response): Promise<T> {
   // Si es 401, intentar refresh
   if (response.status === 401) {
     const refreshed = await refreshAccessToken()
-    
+
     if (!refreshed) {
       if (typeof window !== 'undefined') {
         window.location.href = '/login?error=unauthorized'
       }
       throw new ApiError(response.status, 'No autorizado')
     }
-    
+
     // Si el refresh fue exitoso, el cliente debe reintentar la request
     // (Por simplicidad, aquí solo relanzamos el error; en prod usarías un retry)
     throw new ApiError(401, 'Token actualizado. Por favor, reintenta.')
@@ -92,7 +107,7 @@ function getHeaders(customHeaders?: HeadersInit): HeadersInit {
   const token = $accessToken.get()
   return {
     'Content-Type': 'application/json',
-    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...customHeaders,
   }
 }
@@ -108,7 +123,7 @@ export const api = {
     const response = await fetch(url.toString(), { headers: getHeaders() })
     return handleResponse<T>(response)
   },
-  
+
   post: async <T>(endpoint: string, data?: any): Promise<T> => {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'POST',
@@ -130,7 +145,7 @@ export const api = {
   delete: async <T>(endpoint: string): Promise<T> => {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'DELETE',
-      headers: getHeaders()
+      headers: getHeaders(),
     })
     return handleResponse<T>(response)
   },

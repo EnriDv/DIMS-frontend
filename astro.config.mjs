@@ -7,12 +7,12 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
 
 // https://astro.build/config
+const enableMiddlewareMode = process.env.ASTRO_MIDDLEWARE_MODE === 'true';
+
 export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
-    server: {
-      middlewareMode: true,
-    }
+    ...(enableMiddlewareMode ? { server: { middlewareMode: true } } : {}),
   },
 
   integrations: [react()],

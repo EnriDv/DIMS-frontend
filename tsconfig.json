@@ -4,6 +4,7 @@
   "exclude": ["dist", ".prettierignore", ".gitignore", "package.json", "pnpm-lock.yaml"],
   "compilerOptions": {
     "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "paths": {
       "@/*": ["src/*"]
     },

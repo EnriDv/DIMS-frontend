@@ -72,7 +72,7 @@ src/
     ```bash
     dotnet run
     ```
-    *El backend debe estar disponible en `http://localhost:5231`*.
+    *El backend debe estar disponible según la variable `PUBLIC_API_URL` de tu entorno.*
 
 ### 3. Configuración del Frontend
 1.  Navega a la carpeta `DIMS_Astro`.

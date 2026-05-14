@@ -3,6 +3,11 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+ARG PUBLIC_API_URL
+ARG PUBLIC_APP_NAME
+ENV PUBLIC_API_URL=$PUBLIC_API_URL
+ENV PUBLIC_APP_NAME=$PUBLIC_APP_NAME
+
 # Copy package files
 COPY package.json package-lock.json* yarn.lock* pnpm-lock.yaml* ./
 
