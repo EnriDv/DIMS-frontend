@@ -3,6 +3,10 @@
 import MainLayout from '@/layouts/MainLayout.astro'
 
 const { slug } = Astro.params
+const carrera = Astro.props.carrera ?? {
+  slug,
+  nombre: slug ? slug.replace(/-/g, ' ').toUpperCase() : 'CARRERA',
+}
 
 ---
 
