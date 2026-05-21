@@ -1,0 +1,37 @@
+---
+// frontend/src/pages/admin/index.astro
+import MainLayout from '@/layouts/MainLayout.astro'
+import AdminPanel from '@/components/admin/AdminPanel' // <--- Importamos el nuevo componente
+import RoleProtected from '@/components/auth/RoleProtected'
+---
+
+<MainLayout title="Centro de Operaciones | DIMS">
+  <section class="py-16 bg-slate-50 min-h-screen pt-32">
+    <div class="container-custom max-w-5xl">
+      
+      <header class="mb-12 flex items-end justify-between">
+        <div>
+          <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase mb-2">Centro de Operaciones</h1>
+          <p class="text-indigo-600 font-mono text-sm font-bold tracking-widest">ESTADO: CONEXIÓN_ESTABLE // NIVEL_ACCESO: ADMIN</p>
+        </div>
+      </header>
+
+      {/* Renderizamos el nuevo componente React, que se auto-abastece de QueryClient.
+          Se debe usar client:only="react" */}
+      <AdminPanel client:only="react" />
+
+    </div>
+  </section>
+
+  <script>
+    import { isAuthenticated } from '@/stores/auth'
+    
+    // Seguridad: Redirigir si no hay sesión. 
+    // isAuthenticated() inside this script will access the persistent persistentAtom.
+    if (!isAuthenticated()) {
+      window.location.replace('/login?error=unauthorized')
+    }
+
+    // ELIMINADO TODO EL SCRIPT DE MANIPULACIÓN DEL DOM (Ya no es necesario, lo gestiona React)
+  </script>
+</MainLayout>

@@ -1,0 +1,32 @@
+---
+// src/pages/carreras/[slug]/publicaciones.astro
+import MainLayout from '@/layouts/MainLayout.astro'
+
+const { slug } = Astro.params
+const carrera = { slug, nombre: 'Carrera' }  // Placeholder
+---
+
+<MainLayout title={`Publicaciones | ${carrera.nombre}`}>
+  <section class="py-12 bg-slate-50 min-h-screen pt-32">
+    <div class="container-custom">
+      <div class="mb-12 border-b border-slate-200 pb-8 flex items-center justify-between">
+        <div>
+          <h1 class="text-4xl font-black text-slate-900 mb-2 uppercase">REPOSITORIO_ACADÉMICO</h1>
+          <p class="text-indigo-600 font-mono font-bold tracking-widest">{carrera.nombre.toUpperCase()}</p>
+        </div>
+        <div class="text-right">
+           <span class="block text-xs font-black text-slate-400 font-mono uppercase tracking-tighter">Acceso: Public_Node</span>
+        </div>
+      </div>
+
+      <p>Publicaciones de {carrera.nombre}</p>
+    </div>
+  </section>
+
+  <script>
+    import { setCarreraActiva } from '@/stores/filters'
+    const parts = window.location.pathname.split('/');
+    const slug = parts[parts.indexOf('carreras') + 1];
+    if (slug) setCarreraActiva(slug);
+  </script>
+</MainLayout>

@@ -1,0 +1,28 @@
+---
+// src/pages/noticias/index.astro
+import MainLayout from '@/layouts/MainLayout.astro'
+import CarreraSelector from '@/components/carreras/CarreraSelector'
+import NoticiasLista from '@/components/noticias/NoticiasLista'
+---
+
+<MainLayout title="Noticias - Ingenierías UCB">
+  <section class="py-16 bg-slate-50 min-h-screen pt-32">
+    <div class="container-custom">
+      <div class="mb-12">
+        <h1 class="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">Portal de Noticias</h1>
+        <p class="text-lg text-slate-600 max-w-2xl leading-relaxed">
+          Entérate de los últimos avances, eventos, proyectos y logros de nuestra comunidad académica y científica.
+        </p>
+      </div>
+
+      {/* Selector de carrera - Cargado directamente */}
+      <div class="mb-12">
+        <h2 class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4">Filtrar por unidad académica:</h2>
+        <CarreraSelector client:only="react" />
+      </div>
+
+      {/* Lista de noticias - El componente ya se auto-envuelve con withQueryClient */}
+      <NoticiasLista client:only="react" />
+    </div>
+  </section>
+</MainLayout>

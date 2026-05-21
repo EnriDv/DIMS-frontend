@@ -1,0 +1,30 @@
+---
+// src/pages/carreras/[slug]/pensum.astro
+import MainLayout from '@/layouts/MainLayout.astro'
+import MateriasLista from '@/components/materias/MateriasLista'
+
+const { slug } = Astro.params
+const carrera = { slug, nombre: 'Carrera' }  // Placeholder
+---
+
+<MainLayout title={`Pensum Académico | ${carrera.nombre}`}>
+  <section class="py-12 bg-slate-50 min-h-screen pt-32">
+    <div class="container-custom">
+      <div class="flex items-center justify-between mb-12">
+         <h1 class="text-3xl font-black text-slate-900 uppercase">PENSUM_OFICIAL <span class="text-indigo-600">//</span> {carrera.nombre}</h1>
+         <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold text-xs font-mono shadow-md hover:bg-indigo-700 transition-all">
+            [ PDF_DOWNLOAD ]
+         </button>
+      </div>
+
+      <MateriasLista client:only="react" />
+    </div>
+  </section>
+
+  <script>
+    import { setCarreraActiva } from '@/stores/filters'
+    const parts = window.location.pathname.split('/');
+    const slug = parts[parts.indexOf('carreras') + 1];
+    if (slug) setCarreraActiva(slug);
+  </script>
+</MainLayout>

@@ -1,0 +1,38 @@
+---
+// src/pages/carreras/[slug]/detalles.astro
+import MainLayout from '@/layouts/MainLayout.astro'
+
+const { slug } = Astro.params
+const carrera = Astro.props.carrera ?? {
+  slug,
+  nombre: slug ? slug.replace(/-/g, ' ').toUpperCase() : 'CARRERA',
+}
+
+---
+
+<MainLayout title={`Detalles | ${carrera.nombre}`}>
+  <section class="min-h-screen bg-slate-50 pt-32 pb-20">
+    <div class="container-custom max-w-4xl">
+      <div class="mb-12">
+        <a href={`/carreras/${carrera.slug}`} class="font-mono text-xs font-bold text-indigo-600 hover:underline">
+          {`< VOLVER_A_SINOPSIS`}
+        </a>
+        <h1 class="mt-4 text-4xl font-black tracking-tighter text-slate-900 uppercase">
+          Especificaciones_Técnicas <span class="text-indigo-600">//</span> {carrera.nombre}
+        </h1>
+      </div>
+
+      <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-10 text-center border-dashed">
+        <div class="inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 mb-6">
+          <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          </svg>
+        </div>
+        <h2 class="text-xl font-black text-slate-900 mb-2 font-mono">STATUS: AGUARDANDO_DESPLIEGUE_DE_DATOS</h2>
+        <p class="text-slate-500 max-w-md mx-auto">
+          El módulo de detalles técnicos y laboratorios para {carrera.nombre} se encuentra en fase de migración al nuevo núcleo del sistema.
+        </p>
+      </div>
+    </div>
+  </section>
+</MainLayout>

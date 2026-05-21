@@ -1,0 +1,47 @@
+---
+// src/components/layout/Navigation.astro
+interface Props {
+  currentPath: string
+  mobile?: boolean
+}
+
+const { currentPath, mobile = false } = Astro.props
+
+const navItems = [
+  { name: 'Inicio', href: '/' },
+  { name: 'Carreras', href: '/#carreras' },
+  { name: 'Noticias', href: '/noticias' },
+  { name: 'Eventos', href: '/eventos' },
+]
+
+const isActive = (href: string) => {
+  if (href === '/') return currentPath === '/'
+  if (href.startsWith('/#')) return false
+  return currentPath.startsWith(href)
+}
+---
+
+<nav class={mobile ? 'py-6' : 'hidden md:block'}>
+  <ul class={mobile ? 'space-y-4' : 'flex items-center gap-2'}>
+    {
+      navItems.map((item) => (
+        <li>
+          <a
+            href={item.href}
+            class={`group relative rounded-lg px-4 py-2 text-sm font-medium transition-all duration-300 ${mobile ? 'block text-lg' : 'inline-block'} ${
+              isActive(item.href)
+                ? 'text-indigo-600 bg-indigo-50'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-indigo-600'
+            } `}
+          >
+            {item.name}
+
+            {!isActive(item.href) && !mobile && (
+              <span class="absolute bottom-0 left-1/2 h-0.5 w-0 bg-indigo-500 transition-all duration-300 group-hover:left-1/4 group-hover:w-1/2" />
+            )}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>

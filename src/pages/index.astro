@@ -1,0 +1,111 @@
+---
+import MainLayout from '@/layouts/MainLayout.astro'
+import CarrerasGrid from '@/components/carreras/CarrerasGrid'
+import NoticiasLista from '@/components/noticias/NoticiasLista'
+---
+
+<MainLayout title="DIMS UCB - Engineering Hub" description="Liderando la vanguardia tecnológica en IA, Software y Mecatrónica.">
+  
+  <section class="relative flex min-h-[90vh] items-center overflow-hidden bg-slate-50 pt-20">
+    <div class="absolute inset-0 z-0 opacity-[0.03]" style="background-image: radial-gradient(#000 1px, transparent 1px); background-size: 40px 40px;"></div>
+    <div class="absolute top-1/4 -left-20 h-96 w-96 rounded-full bg-indigo-400/20 blur-[120px]"></div>
+    <div class="absolute -right-20 bottom-1/4 h-96 w-96 rounded-full bg-cyan-400/20 blur-[120px]"></div>
+
+    <div class="container-custom relative z-10">
+      <div class="grid items-center gap-12 lg:grid-cols-2">
+        <div>
+          <div class="mb-6 inline-flex animate-pulse items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 font-mono text-xs text-indigo-700 font-semibold">
+            <span class="relative flex h-2 w-2">
+              <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-75"></span>
+              <span class="relative inline-flex h-2 w-2 rounded-full bg-indigo-500"></span>
+            </span>
+            SISTEMA_OPERATIVO_V4.0
+          </div>
+          <h1 class="mb-6 text-6xl leading-[0.9] font-black tracking-tighter lg:text-8xl text-slate-900">
+            BUILD.<br />
+            <span class="bg-gradient-to-r from-indigo-600 to-cyan-500 bg-clip-text text-transparent">INNOVATE.</span><br />
+            DEPLOY.
+          </h1>
+          <p class="mb-8 max-w-lg text-lg leading-relaxed text-slate-600 lg:text-xl">
+            No solo estudiamos tecnología; la <span class="font-bold text-indigo-600">ejecutamos</span>. Únete al hub de ingeniería más avanzado de la UCB.
+          </p>
+          <div class="flex flex-wrap gap-4">
+            <a href="#carreras" class="btn-primary"> EXPLORAR_STACK </a>
+            <a href="/noticias" class="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-6 py-3 font-semibold text-slate-700 transition-all hover:bg-slate-50 shadow-sm">
+              <span class="h-2 w-2 rounded-full bg-slate-400"></span>
+              VER_LOGS
+            </a>
+          </div>
+        </div>
+
+        <div class="relative hidden lg:block">
+          <div class="glass-card p-2 border-slate-200">
+            <div class="overflow-hidden rounded-xl bg-slate-900 p-6 font-mono text-sm shadow-inner">
+              <p class="text-green-400">$ init project --dims</p>
+              <p class="text-slate-400">Loading neural_network_modules...</p>
+              <p class="text-cyan-400">Status: High Performance Detected</p>
+              <div class="mt-4 grid grid-cols-2 gap-2">
+                <div class="h-20 animate-pulse rounded border border-white/10 bg-slate-800"></div>
+                <div class="h-20 rounded border border-white/10 bg-slate-800"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* STATS SECTION */}
+  <section class="border-y border-slate-200 bg-white">
+    <div class="container-custom py-8">
+      <div class="grid grid-cols-2 gap-8 md:grid-cols-4">
+        {[
+          { label: 'Empleabilidad', val: '95%', color: 'text-cyan-600' },
+          { label: 'Graduados', val: '+500', color: 'text-indigo-600' },
+          { label: 'Proyectos_Active', val: '150+', color: 'text-purple-600' },
+          { label: 'Convenios_Global', val: '50+', color: 'text-pink-600' },
+        ].map((stat) => (
+          <div class="border-r border-slate-100 text-center last:border-0">
+            <div class={`text-3xl font-black ${stat.color}`}>{stat.val}</div>
+            <div class="mt-1 font-mono text-[10px] tracking-widest text-slate-500 uppercase">{stat.label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {/* CARRERAS SECTION - Ahora dinámico con Skeletons */}
+  <section id="carreras" class="relative py-24 bg-slate-50">
+    <div class="container-custom">
+      <div class="mb-16">
+        <h2 class="mb-2 font-mono text-xs font-bold tracking-[0.3em] text-indigo-600 uppercase">Directorio_de_Carreras</h2>
+        <h3 class="text-4xl font-bold text-slate-900 lg:text-5xl">
+          Elige tu <span class="text-slate-500 italic">stack</span>
+        </h3>
+      </div>
+
+      <CarrerasGrid client:only="react" />
+    </div>
+  </section>
+
+  {/* NOTICIAS SECTION - Ahora dinámico con Skeletons */}
+  <section class="bg-white py-24">
+    <div class="container-custom">
+      <div class="mb-12 flex items-end justify-between">
+        <div>
+          <h2 class="mb-2 font-mono text-xs font-bold tracking-[0.3em] text-cyan-600 uppercase">System_Logs</h2>
+          <h3 class="text-4xl font-bold text-slate-900">Código en producción</h3>
+        </div>
+        <a href="/noticias" class="font-mono text-sm font-semibold text-indigo-600 transition-colors hover:text-indigo-800">
+          VIEW_ALL_LOGS
+        </a>
+      </div>
+
+      <NoticiasLista client:only="react" />
+    </div>
+  </section>
+</MainLayout>
+
+<style>
+  h1, h2, h3, h4 { text-wrap: balance; }
+</style>

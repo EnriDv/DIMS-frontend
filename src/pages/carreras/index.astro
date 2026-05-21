@@ -1,0 +1,24 @@
+---
+// src/pages/carreras/index.astro
+import MainLayout from '@/layouts/MainLayout.astro'
+import CarrerasGrid from '@/components/carreras/CarrerasGrid'
+---
+
+<MainLayout title="Carreras - Ingenierías UCB">
+  <section class="py-20 bg-white border-b border-slate-100 pt-32">
+    <div class="container-custom">
+      <div class="max-w-4xl">
+        <h1 class="text-5xl font-black text-slate-900 mb-6 tracking-tight">Programas Académicos</h1>
+        <p class="text-xl text-slate-600 leading-relaxed">
+          Descubre nuestras carreras de ingeniería con excelencia académica y proyección profesional.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 bg-slate-50">
+    <div class="container-custom">
+      <CarrerasGrid client:only="react" />
+    </div>
+  </section>
+</MainLayout>
