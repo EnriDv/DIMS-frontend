@@ -1,25 +1,9 @@
-chmod +x .husky/pre-commit
-
 . "$(dirname -- "$0")/_/husky.sh"
 
 echo "🔍 Running pre-commit checks..."
 
-# Run lint-staged
-#npx lint-staged
+npx lint-staged || exit 1
 
-#if [ $? -ne 0 ]; then
-#  echo "❌ Lint-staged failed. Fix the errors above."
-#  exit 1
-#fi
-
-# Type check
-
-#echo "✅ Type checking..."
-#npm run type-check
-
-#if [ $? -ne 0 ]; then
-#  echo "❌ Type check failed. Fix the errors above."
-#  exit 1
-#fi
+npm run validate || exit 1
 
 echo "✨ Pre-commit checks passed!"
