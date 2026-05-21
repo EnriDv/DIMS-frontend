@@ -1,12 +1,22 @@
 {
   "extends": "astro/tsconfigs/strict",
-  "include": [".astro/types.d.ts", "src/**/*"],
-  "exclude": ["dist", ".prettierignore", ".gitignore", "package.json", "pnpm-lock.yaml"],
+  "include": [
+    ".astro/types.d.ts",
+    "src/**/*"
+  ],
+  "exclude": [
+    "dist",
+    ".prettierignore",
+    ".gitignore",
+    "package.json",
+    "pnpm-lock.yaml"
+  ],
   "compilerOptions": {
     "baseUrl": ".",
-    "ignoreDeprecations": "6.0",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": [
+        "src/*"
+      ]
     },
     "jsx": "react-jsx",
     "jsxImportSource": "react"

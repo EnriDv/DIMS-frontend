@@ -68,8 +68,8 @@ async function refreshAccessToken(): Promise<boolean> {
   return refreshPromise
 }
 
-async function handleResponse<T>(response: Response): Promise<T> {
-  // Si es 401, intentar refresh
+async function handleResponse<T>(response: Response, retryFn?: () => Promise<Response>): Promise<T> {
+  // Si es 401, intentar refresh y reintentar la petición original
   if (response.status === 401) {
     const refreshed = await refreshAccessToken()
 
@@ -80,9 +80,13 @@ async function handleResponse<T>(response: Response): Promise<T> {
       throw new ApiError(response.status, 'No autorizado')
     }
 
-    // Si el refresh fue exitoso, el cliente debe reintentar la request
-    // (Por simplicidad, aquí solo relanzamos el error; en prod usarías un retry)
-    throw new ApiError(401, 'Token actualizado. Por favor, reintenta.')
+    // Refresh exitoso: reintentar la petición original con el nuevo token
+    if (retryFn) {
+      const retryResponse = await retryFn()
+      return handleResponse<T>(retryResponse) // sin retryFn para evitar loop infinito
+    }
+
+    throw new ApiError(401, 'No autorizado. Por favor, recarga la página.')
   }
 
   if (response.status === 403) {
@@ -120,33 +124,40 @@ export const api = {
         if (value !== undefined && value !== null) url.searchParams.append(key, value)
       })
     }
-    const response = await fetch(url.toString(), { headers: getHeaders() })
-    return handleResponse<T>(response)
+    const makeRequest = () => fetch(url.toString(), { headers: getHeaders() })
+    const response = await makeRequest()
+    return handleResponse<T>(response, makeRequest)
   },
 
-  post: async <T>(endpoint: string, data?: any): Promise<T> => {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: data ? JSON.stringify(data) : undefined,
-    })
-    return handleResponse<T>(response)
+  post: async <T>(endpoint: string, data?: unknown): Promise<T> => {
+    const makeRequest = () =>
+      fetch(`${API_BASE_URL}${endpoint}`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: data ? JSON.stringify(data) : undefined,
+      })
+    const response = await makeRequest()
+    return handleResponse<T>(response, makeRequest)
   },
 
-  put: async <T>(endpoint: string, data: any): Promise<T> => {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: 'PUT',
-      headers: getHeaders(),
-      body: JSON.stringify(data),
-    })
-    return handleResponse<T>(response)
+  put: async <T>(endpoint: string, data: unknown): Promise<T> => {
+    const makeRequest = () =>
+      fetch(`${API_BASE_URL}${endpoint}`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify(data),
+      })
+    const response = await makeRequest()
+    return handleResponse<T>(response, makeRequest)
   },
 
   delete: async <T>(endpoint: string): Promise<T> => {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: 'DELETE',
-      headers: getHeaders(),
-    })
-    return handleResponse<T>(response)
+    const makeRequest = () =>
+      fetch(`${API_BASE_URL}${endpoint}`, {
+        method: 'DELETE',
+        headers: getHeaders(),
+      })
+    const response = await makeRequest()
+    return handleResponse<T>(response, makeRequest)
   },
 }

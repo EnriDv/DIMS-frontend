@@ -1,7 +1,7 @@
 // frontend/src/hooks/useAuth.ts
 import { useMutation } from '@tanstack/react-query'
-import { authService, type LoginDto } from '@/lib/api/auth.service'
-import { login, logout, setAuthLoading, setAuthError, setTokens } from '@/stores/auth'
+import { authService, type LoginDto, type RegisterDto } from '@/lib/api/auth.service'
+import { login, logout, setAuthError, setAuthLoading, setTokens } from '@/stores/auth'
 
 export function useLogin() {
   return useMutation({
@@ -15,10 +15,10 @@ export function useLogin() {
       const userData = {
         id: response.userId,
         nombre: response.nombre,
-        email: response.email || '', 
+        email: response.email || '',
         rol: response.rol
       }
-      
+
       // Guardamos ambos tokens
       login(userData, response.accessToken, response.refreshToken)
       setAuthError(null)
@@ -32,6 +32,23 @@ export function useLogin() {
     },
   })
 }
+export function useRegister() {
+  return useMutation({
+    mutationFn: (data: RegisterDto) => authService.register(data),
+    onMutate: () => {
+      setAuthLoading(true)
+      setAuthError(null)
+    },
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : 'Error al registrar usuario'
+      setAuthError(message)
+    },
+    onSettled: () => {
+      setAuthLoading(false)
+    },
+  })
+}
+
 
 export function useRefreshToken() {
   return useMutation({

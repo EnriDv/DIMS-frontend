@@ -1,11 +1,16 @@
 // frontend/src/lib/api/auth.service.ts
-import { api } from './client'
-import type { User } from '@/types'
 import { $refreshToken } from '@/stores/auth'
+import { api } from './client'
 
 export interface LoginDto {
   email: string
   password: string
+}
+export interface RegisterDto {
+  email: string
+  password: string
+  nombre: string
+  rol?: string
 }
 
 export interface LoginResponse {
@@ -22,9 +27,15 @@ export interface RefreshResponse {
   refreshToken: string
 }
 
+
+
 export const authService = {
   login: async (credentials: LoginDto): Promise<LoginResponse> => {
     return api.post<LoginResponse>('/Auth/login', credentials)
+  },
+
+  register: async (data: RegisterDto): Promise<{ message: string; userId: string }> => {
+    return api.post<{ message: string; userId: string }>('/Auth/register', data)
   },
 
   refresh: async (): Promise<RefreshResponse> => {

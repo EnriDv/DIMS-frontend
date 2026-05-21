@@ -12,19 +12,26 @@ function BotonSuscripcion({ eventoId }: Props) {
   const suscripcion = useSuscribirEvento()
   const [inscritoLocal, setInscritoLocal] = useState(false)
 
-  const handleSuscripcion = () => {
+  const handleSuscripcion = async () => {
     if (!isAuthenticated()) {
-      window.location.href = '/login?error=unauthorized'
-      return
+      // El access token venció — intentar renovarlo silenciosamente antes de redirigir
+      const { $refreshToken } = await import('@/stores/auth')
+      if (!$refreshToken.get()) {
+        window.location.href = '/login?error=unauthorized'
+        return
+      }
+      // Dejar que el cliente API maneje el refresh automáticamente al hacer la petición
+      // (Si el refresh falla, el cliente redirigirá al login internamente)
     }
 
     suscripcion.mutate(eventoId, {
       onSuccess: () => {
         setInscritoLocal(true)
       },
-      onError: (error: any) => {
-        alert(error.message || "No se pudo realizar la suscripción. ¿Quizás ya estás inscrito?")
-      }
+      onError: (error: unknown) => {
+        const msg = error instanceof Error ? error.message : 'No se pudo realizar la suscripción'
+        alert(msg)
+      },
     })
   }
 

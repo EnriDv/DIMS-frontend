@@ -1,11 +1,9 @@
 // frontend/src/components/materias/ContenedorMaterias.tsx
-import QueryProvider from '@/components/providers/QueryProvider'
+import { withQueryClient } from '@/lib/queryClient'
 import MateriasLista from './MateriasLista'
 
-export default function ContenedorMaterias() {
-  return (
-    <QueryProvider>
-      <MateriasLista />
-    </QueryProvider>
-  )
+function ContenedorMaterias() {
+  return <MateriasLista />
 }
+
+export default withQueryClient(ContenedorMaterias)

@@ -1,4 +1,4 @@
-// frontend/src/stores/auth.ts
+import { isTokenExpired } from '@/lib/jwt'
 import { atom } from 'nanostores'
 import { persistentAtom } from '@nanostores/persistent'
 
@@ -34,6 +34,11 @@ export function login(user: User, accessToken: string, refreshToken: string) {
   $accessToken.set(accessToken)
   $refreshToken.set(refreshToken)
   $authError.set(null)
+  // Cookie para que el middleware SSR de Astro pueda leer la sesión en el servidor
+  if (typeof window !== 'undefined') {
+    // biome-ignore lint/suspicious/noDocumentCookie: SSR auth requires cookie assignment
+    document.cookie = `auth_token=${accessToken}; Path=/; Secure; SameSite=Strict; max-age=86400`
+  }
 }
 
 export function logout() {
@@ -45,6 +50,9 @@ export function logout() {
     localStorage.removeItem('currentUser')
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
+    // Expirar la cookie del servidor para que el middleware SSR libere la sesión
+    // biome-ignore lint/suspicious/noDocumentCookie: SSR auth requires cookie assignment
+    document.cookie = 'auth_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Strict'
   }
 }
 
@@ -53,7 +61,9 @@ export function setAuthError(error: string | null) { $authError.set(error) }
 
 export function isAuthenticated(): boolean {
   const token = $accessToken.get()
-  return token !== null && token !== ''
+  if (!token) return false
+  // Verificar expiración local antes de hacer la petición al backend
+  return !isTokenExpired(token)
 }
 
 export function getAccessToken(): string {
@@ -63,4 +73,9 @@ export function getAccessToken(): string {
 export function setTokens(accessToken: string, refreshToken: string) {
   $accessToken.set(accessToken)
   $refreshToken.set(refreshToken)
+  // Sincronizar la cookie con el nuevo access token para que el middleware SSR no pierda la sesión
+  if (typeof window !== 'undefined') {
+    // biome-ignore lint/suspicious/noDocumentCookie: SSR auth requires cookie assignment
+    document.cookie = `auth_token=${accessToken}; Path=/; Secure; SameSite=Strict; max-age=86400`
+  }
 }
