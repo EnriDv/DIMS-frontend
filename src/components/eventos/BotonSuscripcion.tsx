@@ -1,6 +1,6 @@
 // src/components/eventos/BotonSuscripcion.tsx
-import { useState } from 'react'
-import { useSuscribirEvento } from '@/hooks/useEventos'
+import { useState, useEffect } from 'react'
+import { useSuscribirEvento, useEventosSuscritos } from '@/hooks/useEventos'
 import { isAuthenticated } from '@/stores/auth'
 import { withQueryClient } from '@/lib/queryClient'
 
@@ -10,18 +10,29 @@ interface Props {
 
 function BotonSuscripcion({ eventoId }: Props) {
   const suscripcion = useSuscribirEvento()
+  const loggedIn = isAuthenticated()
+
+  // Consultar las suscripciones del usuario sólo si está autenticado
+  const { data: suscritos } = useEventosSuscritos()
   const [inscritoLocal, setInscritoLocal] = useState(false)
 
+  // Sincronizar inscritoLocal si el backend dice que ya está inscrito
+  useEffect(() => {
+    if (suscritos && Array.isArray(suscritos)) {
+      const yaInscrito = suscritos.some((e) => e.id === eventoId)
+      if (yaInscrito) {
+        setInscritoLocal(true)
+      }
+    }
+  }, [suscritos, eventoId])
+
   const handleSuscripcion = async () => {
-    if (!isAuthenticated()) {
-      // El access token venció — intentar renovarlo silenciosamente antes de redirigir
+    if (!loggedIn) {
       const { $refreshToken } = await import('@/stores/auth')
       if (!$refreshToken.get()) {
         window.location.href = '/login?error=unauthorized'
         return
       }
-      // Dejar que el cliente API maneje el refresh automáticamente al hacer la petición
-      // (Si el refresh falla, el cliente redirigirá al login internamente)
     }
 
     suscripcion.mutate(eventoId, {
@@ -35,7 +46,6 @@ function BotonSuscripcion({ eventoId }: Props) {
     })
   }
 
-  // Si ya se suscribió en esta sesión
   if (inscritoLocal) {
     return (
       <button className="w-full rounded-xl bg-green-500 py-4 text-sm font-black tracking-widest text-white uppercase shadow-lg flex items-center justify-center gap-2 cursor-default">

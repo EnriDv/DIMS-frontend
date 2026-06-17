@@ -14,6 +14,8 @@
     "lint:fix": "biome lint --write .",
     "validate": "npm run check && astro check",
     "test": "vitest",
+    "test:unit": "vitest run src/tests/unit",
+    "test:behavior": "vitest run src/tests/behavior",
     "test:ci": "vitest --coverage --run",
     "prepare": "husky"
   },
