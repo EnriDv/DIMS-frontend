@@ -2,6 +2,7 @@
 import MainLayout from '@/layouts/MainLayout.astro'
 import CarrerasGrid from '@/components/carreras/CarrerasGrid'
 import NoticiasLista from '@/components/noticias/NoticiasLista'
+import MisEventosSuscritos from '@/components/eventos/MisEventosSuscritos'
 ---
 
 <MainLayout title="DIMS UCB - Engineering Hub" description="Liderando la vanguardia tecnológica en IA, Software y Mecatrónica.">
@@ -73,6 +74,9 @@ import NoticiasLista from '@/components/noticias/NoticiasLista'
       </div>
     </div>
   </section>
+
+  {/* MIS EVENTOS SUSCRITOS SECTION */}
+  <MisEventosSuscritos client:only="react" />
 
   {/* CARRERAS SECTION - Ahora dinámico con Skeletons */}
   <section id="carreras" class="relative py-24 bg-slate-50">
