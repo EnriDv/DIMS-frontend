@@ -47,6 +47,10 @@ export const eventosService = {
     return api.get<Evento>(`/Eventos/${id}`)
   },
 
+  getSuscritos: async (): Promise<Evento[]> => {
+    return api.get<Evento[]>('/Eventos/suscritos')
+  },
+
   create: async (data: CreateEventoDto): Promise<number> => {
     return api.post<number>('/Eventos', data)
   },

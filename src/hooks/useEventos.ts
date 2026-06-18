@@ -70,6 +70,22 @@ export function useEvento(id: number) {
   })
 }
 
+export function useEventosSuscritos() {
+  if (isSSR()) {
+    return {
+      data: [],
+      isLoading: false,
+      isError: false,
+      error: null,
+    }
+  }
+
+  return useQuery({
+    queryKey: ['eventos', 'suscritos'],
+    queryFn: () => eventosService.getSuscritos(),
+  })
+}
+
 // ============================================
 // Mutations
 // ============================================
@@ -139,7 +155,7 @@ export function useDeleteEvento() {
   })
 }
 
-  export function useSuscribirEvento() {
+export function useSuscribirEvento() {
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -147,6 +163,8 @@ export function useDeleteEvento() {
     onSuccess: (_, id) => {
       // Refrescamos el detalle de este evento específico para ver el nuevo contador
       queryClient.invalidateQueries({ queryKey: ['eventos', 'detail', id] })
+      // También invalidamos la lista de suscritos del usuario
+      queryClient.invalidateQueries({ queryKey: ['eventos', 'suscritos'] })
     }
   })
 }
