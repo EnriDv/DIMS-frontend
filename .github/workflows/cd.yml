@@ -1,20 +1,19 @@
-name: Astro CD
+﻿name: Frontend Continuous Deployment
 
 on:
   push:
-    branches: ["main"]
-  workflow_dispatch:
+    branches: ["master", "main"]
 
 jobs:
-  build-and-push:
-    name: Build and Push Astro Image
+  ci-and-security:
+    name: Test, Scan and Push Frontend Image
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Setup Node.js

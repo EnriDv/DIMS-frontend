@@ -24,6 +24,7 @@ describe('BotonSuscripcion integration', () => {
     $currentUser.set(null)
     $accessToken.set('')
     $refreshToken.set('')
+    queryClient.clear()
     mockGetSuscritos.mockImplementation(() => Promise.resolve([]))
     queryClient.clear()
   })
@@ -70,7 +71,13 @@ describe('BotonSuscripcion integration', () => {
 
   it('renders INSCRITO_CON_ÉXITO directly when user is already subscribed', async () => {
     $currentUser.set({ id: '1', email: 'a@a', nombre: 'Test', rol: 'estudiante' })
-    $accessToken.set('fake-token')
+    const createFakeJwt = (payload: Record<string, unknown>) => {
+      const header = Buffer.from(JSON.stringify({ alg: 'none' })).toString('base64url')
+      const body = Buffer.from(JSON.stringify(payload)).toString('base64url')
+      return `${header}.${body}.`
+    }
+    const token = createFakeJwt({ sub: '1', exp: Math.floor(Date.now() / 1000) + 600 })
+    $accessToken.set(token)
     
     // Mock user being already subscribed to event 42
     mockGetSuscritos.mockImplementation(() => Promise.resolve([
