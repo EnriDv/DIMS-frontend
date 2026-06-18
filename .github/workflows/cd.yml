@@ -1,4 +1,4 @@
-﻿name: Frontend Continuous Deployment
+name: Frontend Continuous Deployment
 
 on:
   push:
@@ -51,7 +51,7 @@ jobs:
 
   deploy-to-ec2:
     name: Deploy Frontend to EC2 via SSH
-    needs: build-and-push
+    needs: ci-and-security
     runs-on: ubuntu-latest
     steps:
       - name: Execute Remote SSH Commands
