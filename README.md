@@ -1,6 +1,5 @@
-<<<<<<< HEAD
+
 # DIMS-frontend
-=======
 
 # DIMS Core - Advanced Engineering Hub (UCB)
 
@@ -98,4 +97,3 @@ src/
 ---
 **Desarrollado por:** Enrique Diaz
 **Institución:** Universidad Católica Boliviana "San Pablo"
->>>>>>> feat/docker-refactor
