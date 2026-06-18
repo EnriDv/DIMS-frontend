@@ -26,6 +26,7 @@ describe('BotonSuscripcion integration', () => {
     $refreshToken.set('')
     queryClient.clear()
     mockGetSuscritos.mockImplementation(() => Promise.resolve([]))
+    queryClient.clear()
   })
 
   it('redirects to login when unauthenticated and no refresh token', async () => {
@@ -85,9 +86,6 @@ describe('BotonSuscripcion integration', () => {
 
     render(<Wrapped eventoId={42} />)
 
-    // Wait for the query to resolve and trigger state change
-    await new Promise((r) => setTimeout(r, 100))
-
-    expect(screen.getByText('INSCRITO_CON_ÉXITO')).toBeDefined()
+    expect(await screen.findByText('INSCRITO_CON_ÉXITO')).toBeDefined()
   })
 })
