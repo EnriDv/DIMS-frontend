@@ -42,7 +42,14 @@ describe('MisEventosSuscritos behavior', () => {
 
   it('renders subscribed events when user is authenticated', async () => {
     $currentUser.set({ id: '1', email: 'test@ucb.com', nombre: 'Test Student', rol: 'estudiante' })
-    $accessToken.set('fake-token')
+    
+    const createFakeJwt = (payload: Record<string, unknown>) => {
+      const header = Buffer.from(JSON.stringify({ alg: 'none' })).toString('base64url')
+      const body = Buffer.from(JSON.stringify(payload)).toString('base64url')
+      return `${header}.${body}.`
+    }
+    const token = createFakeJwt({ sub: '1', exp: Math.floor(Date.now() / 1000) + 60 })
+    $accessToken.set(token)
 
     render(<Wrapped />)
 
