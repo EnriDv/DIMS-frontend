@@ -32,6 +32,7 @@ describe('MisEventosSuscritos behavior', () => {
     $currentUser.set(null)
     $accessToken.set('')
     $refreshToken.set('')
+    queryClient.clear()
   })
 
   it('renders nothing when user is unauthenticated', () => {
@@ -45,10 +46,7 @@ describe('MisEventosSuscritos behavior', () => {
 
     render(<Wrapped />)
 
-    // Wait for the query to resolve and content to render
-    await new Promise((r) => setTimeout(r, 100))
-
-    expect(screen.getByText('Evento de Prueba Suscrito')).toBeDefined()
+    expect(await screen.findByText('Evento de Prueba Suscrito')).toBeDefined()
     expect(screen.getByText('Aula 202')).toBeDefined()
   })
 })
