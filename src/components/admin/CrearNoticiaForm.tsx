@@ -1,32 +1,84 @@
 // src/components/admin/CrearNoticiaForm.tsx
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useCreateNoticia } from '@/hooks/useNoticias'
 import { api } from '@/lib/api/client'
 import type { Carrera } from '@/types'
 import { withQueryClient } from '@/lib/queryClient'
 
+const IMAGE_UPLOAD_URL = import.meta.env.PUBLIC_IMAGE_UPLOAD_URL
+
+async function uploadImageToLambda(file: File): Promise<string> {
+  const arrayBuffer = await file.arrayBuffer()
+  const response = await fetch(`${IMAGE_UPLOAD_URL}?folder=noticias`, {
+    method: 'POST',
+    headers: { 'Content-Type': file.type },
+    body: arrayBuffer,
+  })
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}))
+    throw new Error(err.error ?? `Error al subir imagen (${response.status})`)
+  }
+  const data = await response.json()
+  return data.url as string
+}
+
 function CrearNoticiaForm() {
   const createNoticia = useCreateNoticia()
   const [carreras, setCarreras] = useState<Carrera[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [formData, setFormData] = useState({
     titulo: '',
     contenido: '',
-    carreraId: '', 
+    carreraId: '',
     imagenUrl: '',
     destacada: false,
   })
+
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [uploadState, setUploadState] = useState<'idle' | 'uploading' | 'done' | 'error'>('idle')
+  const [uploadError, setUploadError] = useState<string | null>(null)
 
   useEffect(() => {
     api.get<Carrera[]>('/Carreras').then(setCarreras).catch(console.error)
   }, [])
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
+    setFormData(prev => ({ ...prev, imagenUrl: '' }))
+    setUploadState('idle')
+    setUploadError(null)
+  }
+
+  const handleUpload = async () => {
+    if (!imageFile) return
+    setUploadState('uploading')
+    setUploadError(null)
+    try {
+      const url = await uploadImageToLambda(imageFile)
+      setFormData(prev => ({ ...prev, imagenUrl: url }))
+      setUploadState('done')
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : 'Error desconocido')
+      setUploadState('error')
+    }
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
-    // VALIDACIÓN PREVIA: No enviar si están vacíos
     if (!formData.titulo.trim() || !formData.contenido.trim()) {
-      alert("El título y el contenido son obligatorios.")
+      alert('El título y el contenido son obligatorios.')
+      return
+    }
+
+    if (imageFile && uploadState !== 'done') {
+      alert('Debes subir la imagen antes de publicar.')
       return
     }
 
@@ -35,7 +87,7 @@ function CrearNoticiaForm() {
       contenido: formData.contenido,
       imagenUrl: formData.imagenUrl || undefined,
       carreraId: formData.carreraId ? parseInt(formData.carreraId) : null,
-      destacada: formData.destacada
+      destacada: formData.destacada,
     })
   }
 
@@ -82,15 +134,60 @@ function CrearNoticiaForm() {
               ))}
             </select>
           </div>
+
+          {/* Imagen: file picker + subida a Lambda */}
           <div>
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">URL de Imagen</label>
-            <input
-              type="url"
-              value={formData.imagenUrl}
-              onChange={(e) => setFormData({ ...formData, imagenUrl: e.target.value })}
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-mono text-xs"
-              placeholder="https://images.unsplash.com/..."
-            />
+            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Imagen</label>
+
+            <div className="space-y-2">
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:border-indigo-300 transition-colors text-left truncate"
+                >
+                  {imageFile ? imageFile.name : 'Seleccionar archivo...'}
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+                {imageFile && uploadState !== 'done' && (
+                  <button
+                    type="button"
+                    onClick={handleUpload}
+                    disabled={uploadState === 'uploading'}
+                    className="px-4 py-3 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-wider hover:bg-indigo-700 transition-colors disabled:opacity-50 whitespace-nowrap"
+                  >
+                    {uploadState === 'uploading' ? 'Subiendo...' : 'Subir'}
+                  </button>
+                )}
+              </div>
+
+              {/* Preview */}
+              {imagePreview && (
+                <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-slate-200 bg-slate-100">
+                  <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                  {uploadState === 'done' && (
+                    <div className="absolute top-2 right-2 bg-emerald-500 text-white text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wider">
+                      ✓ Subida
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {uploadError && (
+                <p className="text-xs font-bold text-red-500">{uploadError}</p>
+              )}
+
+              {/* URL resultante (solo lectura, para referencia) */}
+              {formData.imagenUrl && (
+                <p className="text-[10px] font-mono text-slate-400 break-all">{formData.imagenUrl}</p>
+              )}
+            </div>
           </div>
         </div>
 
@@ -107,7 +204,7 @@ function CrearNoticiaForm() {
 
       <button
         type="submit"
-        disabled={createNoticia.isPending}
+        disabled={createNoticia.isPending || uploadState === 'uploading'}
         className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg disabled:opacity-50"
       >
         {createNoticia.isPending ? 'TRANSMITIENDO_DATOS...' : 'PUBLICAR_LOG_DE_NOTICIA'}
