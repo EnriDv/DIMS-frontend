@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Carrera, Noticia } from '@/types'
 import { api } from '@/lib/api/client'
 import { useCreateNoticia, useDeleteNoticia, useNoticias, useUpdateNoticia } from '@/hooks/useNoticias'
@@ -32,6 +32,23 @@ function toNoticiaForm(noticia: Noticia): NoticiaFormState {
   }
 }
 
+const IMAGE_UPLOAD_URL = import.meta.env.PUBLIC_IMAGE_UPLOAD_URL
+
+async function uploadImage(file: File): Promise<string> {
+  const buffer = await file.arrayBuffer()
+  const res = await fetch(`${IMAGE_UPLOAD_URL}?folder=noticias`, {
+    method: 'POST',
+    headers: { 'Content-Type': file.type },
+    body: buffer,
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.error ?? `Error al subir imagen (${res.status})`)
+  }
+  const data = await res.json()
+  return data.url as string
+}
+
 export default function GestionNoticiasPanel() {
   const [carreras, setCarreras] = useState<Carrera[]>([])
   const [filtroCarreraId, setFiltroCarreraId] = useState('')
@@ -43,6 +60,30 @@ export default function GestionNoticiasPanel() {
   const createNoticia = useCreateNoticia()
   const updateNoticia = useUpdateNoticia()
   const deleteNoticia = useDeleteNoticia()
+
+  const createFileRef = useRef<HTMLInputElement>(null)
+  const editFileRef = useRef<HTMLInputElement>(null)
+  const [createUpload, setCreateUpload] = useState<'idle' | 'uploading' | 'done' | 'error'>('idle')
+  const [editUpload, setEditUpload] = useState<'idle' | 'uploading' | 'done' | 'error'>('idle')
+  const [createFileName, setCreateFileName] = useState<string | null>(null)
+  const [editFileName, setEditFileName] = useState<string | null>(null)
+
+  const handleImageFile = async (
+    file: File,
+    setForm: React.Dispatch<React.SetStateAction<NoticiaFormState>>,
+    setUpload: React.Dispatch<React.SetStateAction<'idle' | 'uploading' | 'done' | 'error'>>,
+    setFileName: React.Dispatch<React.SetStateAction<string | null>>
+  ) => {
+    setFileName(file.name)
+    setUpload('uploading')
+    try {
+      const url = await uploadImage(file)
+      setForm(prev => ({ ...prev, imagenUrl: url }))
+      setUpload('done')
+    } catch {
+      setUpload('error')
+    }
+  }
 
   useEffect(() => {
     api.get<Carrera[]>('/Carreras').then(setCarreras).catch(console.error)
@@ -76,6 +117,8 @@ export default function GestionNoticiasPanel() {
     })
 
     setCreateForm(emptyNoticiaForm)
+    setCreateFileName(null)
+    setCreateUpload('idle')
     setMostrarFormulario(false)
   }
 
@@ -87,6 +130,8 @@ export default function GestionNoticiasPanel() {
   const cancelEdit = () => {
     setEditingId(null)
     setEditForm(emptyNoticiaForm)
+    setEditFileName(null)
+    setEditUpload('idle')
   }
 
   const saveEdit = async (id: number) => {
@@ -197,13 +242,29 @@ export default function GestionNoticiasPanel() {
             </div>
 
             <div>
-              <label className="mb-2 block text-xs font-bold text-slate-500 uppercase">Imagen URL</label>
-              <input
-                type="url"
-                value={createForm.imagenUrl}
-                onChange={(e) => setCreateForm((prev) => ({ ...prev, imagenUrl: e.target.value }))}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3"
-              />
+              <label className="mb-2 block text-xs font-bold text-slate-500 uppercase">Imagen</label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => createFileRef.current?.click()}
+                  className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-left text-sm text-slate-500 truncate hover:border-indigo-300 transition-colors"
+                >
+                  {createFileName ?? 'Seleccionar archivo...'}
+                </button>
+                <input
+                  ref={createFileRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) handleImageFile(file, setCreateForm, setCreateUpload, setCreateFileName)
+                  }}
+                />
+              </div>
+              {createUpload === 'uploading' && <p className="mt-1 text-xs text-indigo-500">Subiendo imagen...</p>}
+              {createUpload === 'done' && <p className="mt-1 text-xs text-emerald-600">✓ Imagen subida</p>}
+              {createUpload === 'error' && <p className="mt-1 text-xs text-red-500">Error al subir la imagen</p>}
             </div>
           </div>
 
@@ -296,13 +357,32 @@ export default function GestionNoticiasPanel() {
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-xs font-bold text-slate-500 uppercase">Imagen URL</label>
-                    <input
-                      type="url"
-                      value={editForm.imagenUrl}
-                      onChange={(e) => setEditForm((prev) => ({ ...prev, imagenUrl: e.target.value }))}
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3"
-                    />
+                    <label className="mb-2 block text-xs font-bold text-slate-500 uppercase">Imagen</label>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => editFileRef.current?.click()}
+                        className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-left text-sm text-slate-500 truncate hover:border-indigo-300 transition-colors"
+                      >
+                        {editFileName ?? (editForm.imagenUrl ? 'Cambiar imagen...' : 'Seleccionar archivo...')}
+                      </button>
+                      <input
+                        ref={editFileRef}
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0]
+                          if (file) handleImageFile(file, setEditForm, setEditUpload, setEditFileName)
+                        }}
+                      />
+                    </div>
+                    {editUpload === 'uploading' && <p className="mt-1 text-xs text-indigo-500">Subiendo imagen...</p>}
+                    {editUpload === 'done' && <p className="mt-1 text-xs text-emerald-600">✓ Imagen subida</p>}
+                    {editUpload === 'error' && <p className="mt-1 text-xs text-red-500">Error al subir la imagen</p>}
+                    {editForm.imagenUrl && editUpload !== 'done' && (
+                      <p className="mt-1 text-[10px] font-mono text-slate-400 truncate">{editForm.imagenUrl}</p>
+                    )}
                   </div>
                 </div>
 
